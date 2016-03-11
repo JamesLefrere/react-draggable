@@ -17,7 +17,7 @@ export function getBoundPosition(draggable: Draggable, clientX: number, clientY:
   if (!draggable.props.bounds) return [clientX, clientY];
 
   // Clone new bounds
-  let {bounds} = draggable.props;
+  let {bounds, boundHandle} = draggable.props;
   bounds = typeof bounds === 'string' ? bounds : cloneBounds(bounds);
   let node = ReactDOM.findDOMNode(draggable);
 
@@ -29,6 +29,10 @@ export function getBoundPosition(draggable: Draggable, clientX: number, clientY:
       boundNode = document.querySelector(bounds);
       if (!boundNode) throw new Error('Bounds selector "' + bounds + '" could not find an element.');
     }
+
+    // Set the node to the inner boundHandle if required
+    if (boundHandle) node = node.querySelector(boundHandle);
+
     let nodeStyle = window.getComputedStyle(node);
     let boundNodeStyle = window.getComputedStyle(boundNode);
     // Compute bounds. This is a pain with padding and offsets but this gets it exactly right.
@@ -40,6 +44,8 @@ export function getBoundPosition(draggable: Draggable, clientX: number, clientY:
       right: innerWidth(boundNode) - outerWidth(node) - node.offsetLeft,
       bottom: innerHeight(boundNode) - outerHeight(node) - node.offsetTop
     };
+    // Remove the boundHandle height from the bottom constraint
+    if (boundHandle) bounds.bottom -= outerHeight(node);
   }
 
   // Keep x and y below right and bottom limits...

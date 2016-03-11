@@ -49,6 +49,10 @@
       padding: 10px;
       float: left;
     }
+
+    .bound-handle {
+      background: #888;
+    }
   </style>
 </head>
 <body>
@@ -141,8 +145,14 @@
             </Draggable>
             <Draggable bounds="parent" {...drags}>
               <div className="box">
-                I also can only be moved within my offsetParent.<br /><br />
+                I can only be moved within my offsetParent.<br /><br />
                 Both parent padding and child margin work properly.
+              </div>
+            </Draggable>
+            <Draggable bounds="parent" boundHandle=".bound-handle" {...drags}>
+              <div className="box">
+                <div className="bound-handle">boundHandle</div>
+                I can be moved just outside my offsetParent, thanks to my inner boundHandle.
               </div>
             </Draggable>
           </div>

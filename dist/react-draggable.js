@@ -409,8 +409,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	  Copyright (c) 2015 Jed Watson.
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
 	  Licensed under the MIT License (MIT), see
 	  http://jedwatson.github.io/classnames
 	*/
@@ -422,7 +422,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		var hasOwn = {}.hasOwnProperty;
 	
 		function classNames () {
-			var classes = '';
+			var classes = [];
 	
 			for (var i = 0; i < arguments.length; i++) {
 				var arg = arguments[i];
@@ -431,28 +431,28 @@ return /******/ (function(modules) { // webpackBootstrap
 				var argType = typeof arg;
 	
 				if (argType === 'string' || argType === 'number') {
-					classes += ' ' + arg;
+					classes.push(arg);
 				} else if (Array.isArray(arg)) {
-					classes += ' ' + classNames.apply(null, arg);
+					classes.push(classNames.apply(null, arg));
 				} else if (argType === 'object') {
 					for (var key in arg) {
 						if (hasOwn.call(arg, key) && arg[key]) {
-							classes += ' ' + key;
+							classes.push(key);
 						}
 					}
 				}
 			}
 	
-			return classes.substr(1);
+			return classes.join(' ');
 		}
 	
 		if (typeof module !== 'undefined' && module.exports) {
 			module.exports = classNames;
 		} else if (true) {
 			// register as 'classnames', consistent with npm package name
-			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
 				return classNames;
-			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 		} else {
 			window.classNames = classNames;
 		}
@@ -761,19 +761,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (!draggable.props.bounds) return [clientX, clientY];
 	
 	  // Clone new bounds
-	  var bounds = draggable.props.bounds;
+	  var _draggable$props = draggable.props;
+	  var bounds = _draggable$props.bounds;
+	  var boundHandle = _draggable$props.boundHandle;
 	
 	  bounds = typeof bounds === 'string' ? bounds : cloneBounds(bounds);
 	  var node = _reactDom2.default.findDOMNode(draggable);
 	
 	  if (typeof bounds === 'string') {
-	    var boundNode = undefined;
+	    var boundNode = void 0;
 	    if (bounds === 'parent') {
 	      boundNode = node.parentNode;
 	    } else {
 	      boundNode = document.querySelector(bounds);
 	      if (!boundNode) throw new Error('Bounds selector "' + bounds + '" could not find an element.');
 	    }
+	
+	    // Set the node to the inner boundHandle if required
+	    if (boundHandle) node = node.querySelector(boundHandle);
+	
 	    var nodeStyle = window.getComputedStyle(node);
 	    var boundNodeStyle = window.getComputedStyle(boundNode);
 	    // Compute bounds. This is a pain with padding and offsets but this gets it exactly right.
@@ -783,6 +789,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      right: (0, _domFns.innerWidth)(boundNode) - (0, _domFns.outerWidth)(node) - node.offsetLeft,
 	      bottom: (0, _domFns.innerHeight)(boundNode) - (0, _domFns.outerHeight)(node) - node.offsetTop
 	    };
+	    // Remove the boundHandle height from the bottom constraint
+	    if (boundHandle) bounds.bottom -= (0, _domFns.outerHeight)(node);
 	  }
 	
 	  // Keep x and y below right and bottom limits...
@@ -1193,6 +1201,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	  handle: _react.PropTypes.string,
 	
 	  /**
+	   * `boundHandle` specifies a selector to be used as the node which is kept within the Draggable bounds.
+	   * If not specified, the Draggable's content is used.
+	   *
+	   * Example:
+	   *
+	   * ```jsx
+	   *   let App = React.createClass({
+	   *       render: function () {
+	   *         return (
+	   *            <Draggable boundHandle=".toolbar">
+	   *              <div>
+	   *                  <div className="toolbar">I am a toolbar at the top</div>
+	   *                  <div>This is some other content</div>
+	   *              </div>
+	   *           </Draggable>
+	   *         );
+	   *       }
+	   *   });
+	   * ```
+	   */
+	  boundHandle: _react.PropTypes.string,
+	
+	  /**
 	   * `cancel` specifies a selector to be used to prevent drag initialization.
 	   *
 	   * Example:
@@ -1295,6 +1326,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  disabled: false,
 	  enableUserSelectHack: true,
 	  handle: null,
+	  boundHandle: null,
 	  grid: null,
 	  transform: null,
 	  onStart: function onStart() {},

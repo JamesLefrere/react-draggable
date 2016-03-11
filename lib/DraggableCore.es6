@@ -119,6 +119,29 @@ export default class DraggableCore extends React.Component {
     handle: PropTypes.string,
 
     /**
+     * `boundHandle` specifies a selector to be used as the node which is kept within the Draggable bounds.
+     * If not specified, the Draggable's content is used.
+     *
+     * Example:
+     *
+     * ```jsx
+     *   let App = React.createClass({
+     *       render: function () {
+     *         return (
+     *            <Draggable boundHandle=".toolbar">
+     *              <div>
+     *                  <div className="toolbar">I am a toolbar at the top</div>
+     *                  <div>This is some other content</div>
+     *              </div>
+     *           </Draggable>
+     *         );
+     *       }
+     *   });
+     * ```
+     */
+    boundHandle: PropTypes.string,
+
+    /**
      * `cancel` specifies a selector to be used to prevent drag initialization.
      *
      * Example:
@@ -222,6 +245,7 @@ export default class DraggableCore extends React.Component {
     disabled: false,
     enableUserSelectHack: true,
     handle: null,
+    boundHandle: null,
     grid: null,
     transform: null,
     onStart: function(){},
